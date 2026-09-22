@@ -1,0 +1,14 @@
+services:
+  absorption:
+    build: .
+    image: absorption-height-service:latest
+    container_name: absorption-height-service
+    ports:
+      - "8000:8000"
+    volumes:
+      # named volume keeps registered profiles across container restarts
+      - absorption-data:/data
+    restart: unless-stopped
+
+volumes:
+  absorption-data:

@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+data/*.json
+data/*.bak
+data/*.corrupt
+.git/
+.gitignore
+Dockerfile
+docker-compose.yml
+.dockerignore
+requirements-dev.txt
+pytest.ini
+tests/
+README.md
