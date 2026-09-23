@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from . import __version__, config
 from .errors import CalculationError
 from .profiles import BUILTIN_PROFILE, ProfileStore
-from .routers import calc, profiles
+from .routers import calc, invert, profiles
 
 
 def create_app(data_dir: str | Path | None = None) -> FastAPI:
@@ -37,6 +37,7 @@ def create_app(data_dir: str | Path | None = None) -> FastAPI:
     app.state.profiles = ProfileStore(store_path)
 
     app.include_router(calc.router)
+    app.include_router(invert.router)
     app.include_router(profiles.router)
 
     @app.exception_handler(CalculationError)
@@ -67,6 +68,8 @@ def create_app(data_dir: str | Path | None = None) -> FastAPI:
             "endpoints": [
                 "POST /calculate",
                 "POST /calculate/batch",
+                "POST /invert",
+                "POST /invert/batch",
                 "GET /profiles",
                 "GET /profiles/{name}",
                 "PUT /profiles/{name}",

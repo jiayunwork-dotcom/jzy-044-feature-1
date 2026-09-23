@@ -9,6 +9,11 @@
 - ``SERVICE_BALANCE_RTOL``      物料衡算的相对容差
 - ``SERVICE_LAMBDA_FLAT``       斜率比 λ=mG/L 视为 1 的容差
 - ``SERVICE_LM_RATIO``          对数平均退化到算术平均的 Δ2/Δ1 阈值
+- ``SERVICE_INVERT_XTOL``       反解二分迭代液气比的相对收敛宽度
+- ``SERVICE_INVERT_MAXITER``    反解二分迭代最大次数
+- ``SERVICE_INVERT_UPPER``      反解夹取上界相对最小液气比的扩张倍数
+- ``SERVICE_INVERT_LG_FLOOR``   m=0 等不存在有限最小液气比时的液气比地板
+- ``SERVICE_INVERT_BAND``       定塔高反解逼近无穷吸收剂极限的相对收窄带
 """
 
 from __future__ import annotations
@@ -40,3 +45,15 @@ LAMBDA_FLAT_TOL = _float_env("SERVICE_LAMBDA_FLAT", 1e-9)
 
 # Δ2/Δ1 接近 1 时 log-mean 用算术平均兜底
 LM_RATIO_TOL = _float_env("SERVICE_LM_RATIO", 1e-6)
+
+# ---- 反解（单调求根）默认控制参数，可被请求逐条覆盖 ----
+# 夹逼区间相对宽度 (hi-lo)/hi ≤ 该值即认为收敛
+INVERT_XTOL = _float_env("SERVICE_INVERT_XTOL", 1e-10)
+INVERT_MAX_ITER = int(_float_env("SERVICE_INVERT_MAXITER", 200))
+# 上界初始取 上限倍数·最小液气比（夹不住则倍增）
+INVERT_UPPER_FACTOR = _float_env("SERVICE_INVERT_UPPER", 1024.0)
+# m=0 等"不存在有限最小液气比"情形下，搜索下界使用的液气比地板
+INVERT_LG_FLOOR = _float_env("SERVICE_INVERT_LG_FLOOR", 1e-9)
+# 定塔高反解：目标出口相对无穷吸收剂极限的收窄带（相对 span 计）
+# 带越窄越贴近理论极限、所需液气比越大；1% 给出工程上可操作的点
+INVERT_LIMIT_BAND = _float_env("SERVICE_INVERT_BAND", 1e-2)
