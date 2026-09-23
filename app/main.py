@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from . import __version__, config
 from .errors import CalculationError
 from .profiles import BUILTIN_PROFILE, ProfileStore
-from .routers import calc, profiles
+from .routers import calc, profiles, solve
 
 
 def create_app(data_dir: str | Path | None = None) -> FastAPI:
@@ -37,11 +37,15 @@ def create_app(data_dir: str | Path | None = None) -> FastAPI:
     app.state.profiles = ProfileStore(store_path)
 
     app.include_router(calc.router)
+    app.include_router(solve.router)
     app.include_router(profiles.router)
 
     @app.exception_handler(CalculationError)
     async def _calculation_error_handler(_: Request, exc: CalculationError) -> JSONResponse:
-        return JSONResponse(status_code=exc.http_status, content={"error": {"code": exc.code, "message": exc.message}})
+        body = {"code": exc.code, "message": exc.message}
+        if exc.details:
+            body["details"] = exc.details
+        return JSONResponse(status_code=exc.http_status, content={"error": body})
 
     @app.exception_handler(RequestValidationError)
     async def _validation_error_handler(_: Request, exc: RequestValidationError) -> JSONResponse:
@@ -67,6 +71,8 @@ def create_app(data_dir: str | Path | None = None) -> FastAPI:
             "endpoints": [
                 "POST /calculate",
                 "POST /calculate/batch",
+                "POST /solve",
+                "POST /solve/batch",
                 "GET /profiles",
                 "GET /profiles/{name}",
                 "PUT /profiles/{name}",

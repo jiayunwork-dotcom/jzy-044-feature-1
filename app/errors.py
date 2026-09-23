@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 
 # ---- 错误码（随错误响应一并返回，便于上游分支处理） ----
@@ -19,6 +20,11 @@ ERR_PROFILE_NAME = "PROFILE_NAME_INVALID"
 ERR_PROFILE_READONLY = "PROFILE_READONLY"  # 内置示范工况不可改 / 删
 ERR_PROFILE_INVALID = "PROFILE_INVALID"
 
+# ---- 反解（inverse solve）专属错误码 ----
+ERR_SOLVE_BAD_REQUEST = "INVALID_SOLVE_REQUEST"      # 反解请求本身不成立
+ERR_TARGET_INFEASIBLE = "TARGET_INFEASIBLE"          # 分离目标越过可行性边界
+ERR_SOLVER_NO_CONVERGE = "SOLVER_DID_NOT_CONVERGE"   # 迭代到上限仍未夹住收敛
+
 
 @dataclass(frozen=True)
 class CalculationError(Exception):
@@ -27,6 +33,7 @@ class CalculationError(Exception):
     code: str
     message: str
     http_status: int = 422
+    details: dict[str, Any] | None = None
 
     def __str__(self) -> str:  # pragma: no cover - 仅用于日志
         return f"[{self.code}] {self.message}"
